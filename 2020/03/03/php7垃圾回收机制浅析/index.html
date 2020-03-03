@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="之前遇到过MySQL本地可以连接但是远程连不上的问题，没有记录，今天又遇到这个问题，记录一下解决过程…">
+<meta name="description" content="今天本来想着了解下php的垃圾回收机制，看了下php手册里的描述，大致了解了垃圾回收机制的原理…">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Centos6下MySQL远程连接失败">
-<meta property="og:url" content="http://yoursite.com/2018/03/07/Centos6下MySQL远程连接失败/index.html">
+<meta property="og:title" content="php7垃圾回收机制浅析">
+<meta property="og:url" content="http://yoursite.com/2020/03/03/php7垃圾回收机制浅析/index.html">
 <meta property="og:site_name" content="hickey-Blog">
-<meta property="og:description" content="之前遇到过MySQL本地可以连接但是远程连不上的问题，没有记录，今天又遇到这个问题，记录一下解决过程…">
+<meta property="og:description" content="今天本来想着了解下php的垃圾回收机制，看了下php手册里的描述，大致了解了垃圾回收机制的原理…">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-07-19T09:42:42.145Z">
+<meta property="og:updated_time" content="2020-03-03T15:05:57.874Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Centos6下MySQL远程连接失败">
-<meta name="twitter:description" content="之前遇到过MySQL本地可以连接但是远程连不上的问题，没有记录，今天又遇到这个问题，记录一下解决过程…">
+<meta name="twitter:title" content="php7垃圾回收机制浅析">
+<meta name="twitter:description" content="今天本来想着了解下php的垃圾回收机制，看了下php手册里的描述，大致了解了垃圾回收机制的原理…">
 
 
 
@@ -119,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/03/07/Centos6下MySQL远程连接失败/">
+  <link rel="canonical" href="http://yoursite.com/2020/03/03/php7垃圾回收机制浅析/">
 
 
 
 
 
-  <title>Centos6下MySQL远程连接失败 | hickey-Blog</title>
+  <title>php7垃圾回收机制浅析 | hickey-Blog</title>
   
 
 
@@ -232,7 +232,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/07/Centos6下MySQL远程连接失败/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/03/php7垃圾回收机制浅析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="hickey">
@@ -249,7 +249,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Centos6下MySQL远程连接失败</h1>
+          <h1 class="post-title" itemprop="name headline">php7垃圾回收机制浅析</h1>
         
 
         <div class="post-meta">
@@ -261,8 +261,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-07T14:08:53+08:00">
-                2018-03-07
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-03-03T23:02:31+08:00">
+                2020-03-03
               </time>
             
 
@@ -299,40 +299,27 @@
       
 
       
-        <p>之前遇到过MySQL本地可以连接但是远程连不上的问题，没有记录，今天又遇到这个问题，记录一下解决过程…</p>
+        <p>今天本来想着了解下php的垃圾回收机制，看了下php手册里的描述，大致了解了垃圾回收机制的原理…</p>
 <a id="more"></a>
+<p>今天本来想着了解下php的垃圾回收机制，看了下php手册里的描述，大致了解了垃圾回收机制的原理，想着自己写代码去测试下，是不是跟手册里说的是一样的。然后就有了这篇文章。</p>
+<h2 id="发现问题"><a href="#发现问题" class="headerlink" title="发现问题"></a>发现问题</h2><p>按照手册的实例代码敲了下，发现了神奇的问题，结果不一样啊！</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$a = <span class="string">"new String"</span>;</span><br><span class="line">xdebug_debug_zval( <span class="string">'a'</span> );</span><br></pre></td></tr></table></figure>
 
-<h2 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h2><p>之前遇到过MySQL本地可以连接但是远程连不上的问题，没有记录，今天又遇到这个问题，记录一下解决过程（MySQL版本5.5）。</p>
-<p>1.先将mysql服务停掉</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/mysqld stop</span><br></pre></td></tr></table></figure>
+<p>手册告诉我们的结果是：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a: (refcount=<span class="number">1</span>, is_ref=<span class="number">0</span>)=<span class="string">'new string'</span></span><br></pre></td></tr></table></figure>
 
-<p>2.查看mysql配置文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/my.cnf</span><br></pre></td></tr></table></figure>
+<p>我自己的结果：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a: (interned, is_ref=<span class="number">0</span>)=<span class="string">'new String'</span></span><br></pre></td></tr></table></figure>
 
-<p><strong>****特别要注意****</strong><br>bind_address和skip_networking<br>在bind_address前加个”#”进行注释，或者改为：bind-address = 0.0.0.0 允许任意IP访问；或者指定自己需要远程访问的IP地址。<br>bind_address一定不能为127.0.0.1，否则只能在本地连接；<br>skip_networking一定不能出现，否则只接受unix socket而不能提供tcp socket服务；<br>建议把两者都注释掉。<br>3.重启mysql服务</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/mysqld start</span><br></pre></td></tr></table></figure>
-
-<p>4.对用户授权，允许指定用户远程访问，最简单的方式是将mysql库中user表中的对应的用户的host设置为%，亦即允许该用户从任意ip远程访问<br>方法一：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">use mysql;</span><br><span class="line">update user set host = &apos;%&apos; where user = &apos;root&apos;;    //这个命令执行错误时可略过</span><br><span class="line">flush privileges;</span><br><span class="line">select host, user from user; //检查‘%’ 是否插入到数据库中</span><br></pre></td></tr></table></figure>
-
-<p>方法二：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grant all privileges on *.* to root@&quot;%&quot; identified by &quot;password&quot; with grant option;</span><br></pre></td></tr></table></figure>
-
-<p>第一行命令解释如下，*.*：第一个*代表数据库名；第二个*代表表名。<br>这里的意思是所有数据库里的所有表都授权给用户，如果只是授权某数据库或数据库下某张表，则把*替换成你所需的数据库名和表明即可。<br>root：授予root账号。%：表示授权的用户IP可以指定，这里代表任意的IP地址都能访问MySQL数据库。<br>password：分配账号对应的密码，这里密码自己替换成你的 root帐号密码 </p>
-<p>5.一般情况下此时就能满足远程访问的要求，但对于某些系统还需要检查防火墙设置，和ip访问策略，以防系统对网络访问的限制造成无法远程访问mysql<br>对于CentOS系统而言，最好检测iptables设置。具体步骤如下:<br>5.1 暂停iptables服务</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service iptables stop</span><br></pre></td></tr></table></figure>
-
-<p>5.2 查看iptables配置文件</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim /etc/sysconfig/iptables</span><br></pre></td></tr></table></figure>
-
-<p>5.3 也许会看到如下内容</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">:OUTPUT ACCEPT [1009120:257185920]</span><br><span class="line">-A INPUT -p tcp -m tcp --dport 3306 -j ACCEPT</span><br><span class="line"><span class="comment">#-A INPUT -s 118.144.89.18 -p tcp -m tcp --dport 3306 -j ACCEPT</span></span><br><span class="line"><span class="comment">#-A INPUT -s 123.127.177.239 -p tcp -m tcp --dport 3306 -j ACCEPT</span></span><br></pre></td></tr></table></figure>
-
-<p>建议直接开放3306端口，而不是仅限定某个ip才可以访问3306</p>
-<p>5.4 重启iptables服务</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service iptables start</span><br></pre></td></tr></table></figure>
-
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://www.cnblogs.com/Jerryshome/archive/2011/08/03/2126409.html" target="_blank" rel="noopener">CentOS下mysql远程连接的失败的解决方法</a><br><a href="http://blog.csdn.net/ynnmnm/article/details/45097857" target="_blank" rel="noopener">MySQL本地可以连接，远程连接不上的问题</a><br><a href="http://www.jb51.net/article/116739.htm" target="_blank" rel="noopener">linux配置mysql数据库远程连接失败的解决方法</a></p>
+<p>这个是什么东东？<br>原来我的<code>PHP</code>版本是<code>7.1</code>，但是手册上是<code>5.3</code>的。那我明白了，<code>PHP7</code>在垃圾回收机制上做了优化。如果我是大牛，我就去看源码了，可惜我不是！所以咱只能查资料了，找了大半天，发现很多标题都是PHP7垃圾回收机制的文章，但是里面的内容确还是PHP5的垃圾回收机制的内容，要么就是直接上源码！这。。。我要是能看懂源码，还需要你去复制一遍吗？<br>经过坚持不懈的搜索，查找到了这篇文章—<a href="https://galaxyhao.github.io/2018/07/07/PHP7中zval的变化/" target="_blank" rel="noopener">PHP7中zval的变化</a></p>
+<h2 id="解决问题"><a href="#解决问题" class="headerlink" title="解决问题"></a>解决问题</h2><p><code>原文：</code><br>In PHP 7 a zval can be reference counted or not. There is a flag in the zval structure which determined this.</p>
+<p>There are some types which are never refcounted. These types are null, bool, int and double.</p>
+<p>There are other types which are always refcounted. These are objects, resources and references.</p>
+<p>And then there are types, which are sometimes refcounted. Those are strings and arrays.</p>
+<p>For strings the not-refcounted variant is called an “interned string”. If you’re using an NTS (not thread-safe) PHP 7 build, which you typically are, all string literals in your code will be interned. These interned strings are deduplicated (i.e. there is only one interned string with a certain content) and are guaranteed to exist for the full duration of the request, so there is no need to use reference counting for them. If you use opcache, these strings will live in shared memory, in which case you can’t use reference counting for them (as our refcounting mechanism is non-atomic). Interned strings have a dummy refcount of 1, which is what you’re seeing here.</p>
+<p>For arrays the not-refcounted variant is called an “immutable array”. If you use opcache, then constant array literals in your code will be converted into immutable arrays. Once again, these live in shared memory and as such must not use refcounting. Immutable arrays have a dummy refcount of 2, as it allows us to optimize certain separation paths.<br><code>翻译：</code><br>在PHP7中，zval结构体中有一个标志来决定zval是否能被引用计数。<br>像null,bool,int,double这些变量类型永远不会被引用计数（这个地方可能有些不太严谨，鸟哥的博客中写道PHP7中zval的类型共有18种，其中IS_LONG,IS_DOUBLE,IS_NULL,IS_FALSE,IS_TRUE不会使用引用计数）。<br>像object,resources,references这些变量类型总是会使用引用计数。<br>然而，像array，strings这些变量类型有时会使用引用计数，有时则不会。<br>不使用引用计数的字符串类型被叫做“interned string（保留字符串）”。如果你使用一个NTS(非线程安全)的PHP7来构建，通常情况下，代码中的所有字符串文字都将是限定的。这些保留字符串都是不可重复的（即，只会存在一个含有特定内容的保留字符串）。它会一直存在直到请求结束时才销毁，所以也就无需进行引用计数。如果使用了 opcache 的话，保留字符会被存储在共享内存中，在这种情况下，无法使用引用计数（因为我们引用计数的机制是非原子的）。保留字符串的伪引用计数为1。<br>对于数组来说，无引用计数的变量称为“不可变数组”。如果使用opcache，则代码中的常量数组文字将转换为不可变数组。同样的，他们存在于共享内存中，因此不得使用引用计数。不可变数组的伪引用数为2，因为它允许我们优化某些分离路径。</p>
+<p>##总结<br>PHP7的垃圾回收机制已经做过了优化。当有人问我们PHP垃圾回收机制的时候，我们不能再按手册上解释的那样去回答，而是要分版本去解释，当然，这篇只是简单的解释了PHP7中zval的变化，暂时没有办法去深入的解释PHP7的垃圾回收机制。主要原因还是咱的技术水平还有待提高，源码解释那部分看的云里雾里的，还需要更多时间去学习，以后会看懂了再来填这个坑吧。这篇文章主要先做个mark。当然也希望有能力的大佬看到的话，可以指教一下我</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p> <a href="https://galaxyhao.github.io/2018/07/07/PHP7中zval的变化/" target="_blank" rel="noopener">PHP7中zval的变化</a><br><a href="https://galaxyhao.github.io/2018/07/06/转-变量在PHP7内部的实现（一）/" target="_blank" rel="noopener">[转]变量在 PHP7 内部的实现（一）</a><br> <a href="https://galaxyhao.github.io/2018/07/06/转-变量在PHP7内部的实现（二）/" target="_blank" rel="noopener">[转]变量在PHP7内部的实现（二）</a></p>
 
       
     </div>
@@ -357,8 +344,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/03/06/Centos6下搭建git服务器，并完成git自动部署/" rel="next" title="Centos6下搭建git服务器,并完成git自动部署">
-                <i class="fa fa-chevron-left"></i> Centos6下搭建git服务器,并完成git自动部署
+              <a href="/2020/03/02/Nginx-PHP-FPM工作原理/" rel="next" title="Nginx+PHP-FPM工作原理">
+                <i class="fa fa-chevron-left"></i> Nginx+PHP-FPM工作原理
               </a>
             
           </div>
@@ -366,10 +353,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2020/03/02/Nginx-PHP-FPM工作原理/" rel="prev" title="Nginx+PHP-FPM工作原理">
-                Nginx+PHP-FPM工作原理 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -483,7 +466,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#解决办法"><span class="nav-number">1.</span> <span class="nav-text">解决办法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">2.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#发现问题"><span class="nav-number">1.</span> <span class="nav-text">发现问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决问题"><span class="nav-number">2.</span> <span class="nav-text">解决问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
 
           </div>
